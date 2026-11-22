@@ -157,8 +157,6 @@ class PortReaperApp(App[None]):
     CSS_PATH = str(_resolve_tcss_path())
     TITLE = f"PORTREAPER v{__version__}"
 
-    # Note: Up/Down arrows and `j` navigate rows; `k` triggers graceful-kill (with y/n modal)
-    # and `K` triggers recursive force-kill as specified, avoiding keybinding collision on `k`.
     BINDINGS = [
         Binding("j", "cursor_down", "Down", show=False),
         Binding("down", "cursor_down", "Down", show=False),
@@ -177,10 +175,10 @@ class PortReaperApp(App[None]):
         Binding("q", "quit", "Quit", show=False),
     ]
 
-    dev_only: reactive[bool] = reactive(False)
-    paused: reactive[bool] = reactive(False)
-    inspector_open: reactive[bool] = reactive(True)
-    filter_query: reactive[str] = reactive("")
+    dev_only: reactive[bool] = reactive(False, init=False)
+    paused: reactive[bool] = reactive(False, init=False)
+    inspector_open: reactive[bool] = reactive(True, init=False)
+    filter_query: reactive[str] = reactive("", init=False)
 
     def __init__(self, *, dev_only: bool = False, include_udp: bool = False) -> None:
         super().__init__()
@@ -251,8 +249,8 @@ class PortReaperApp(App[None]):
 
         self._apply_filter_and_render()
 
-   def _apply_filter_and_render(self) -> None:
-        if not self.is_mounted:
+    def _apply_filter_and_render(self) -> None:
+        if not self.screen_stack:
             return
         filtered = self._all_entries
         if self.dev_only:
@@ -321,6 +319,8 @@ class PortReaperApp(App[None]):
         self._render_inspector()
 
     def _render_status_bar(self) -> None:
+        if not self.screen_stack:
+            return
         bar = Text()
         bar.append(f" PORTREAPER v{__version__} ", style="bold #0B0E14 on #E6EDF3")
         bar.append(" │ ", style="#2A313C")
@@ -381,6 +381,8 @@ class PortReaperApp(App[None]):
         return None
 
     def _render_inspector(self) -> None:
+        if not self.screen_stack:
+            return
         widget = self.query_one("#inspector-content", Static)
         entry = self._get_selected_entry()
         if entry is None:
@@ -392,7 +394,6 @@ class PortReaperApp(App[None]):
         cpu_hist = self._cpu_history.get(entry.pid) if entry.pid is not None else None
 
         panel = Text()
-        # Line 1: Header + Exposure status
         panel.append("INSPECTOR  ", style="bold #8B949E")
         panel.append(f"{entry.name}", style="bold #E6EDF3")
         panel.append(f"  PID {entry.pid_display}", style="#8B949E")
@@ -404,17 +405,14 @@ class PortReaperApp(App[None]):
             panel.append(f"LOCALHOST ({', '.join(entry.all_bind_addrs or [entry.bind_addr])})", style="#10B981")
         panel.append("\n")
 
-        # Line 2: CMDLINE
         panel.append("CMDLINE  ", style="bold #8B949E")
         panel.append(_truncate(entry.cmdline, 118), style="#E6EDF3")
         panel.append("\n")
 
-        # Line 3: CWD
         panel.append("CWD      ", style="bold #8B949E")
         panel.append(_truncate(entry.cwd, 118), style="#E6EDF3")
         panel.append("\n")
 
-        # Line 4: Process Tree & User
         parent_str = (
             f"{entry.parent_name} ({entry.parent_pid})"
             if entry.parent_pid is not None and entry.parent_name
@@ -428,13 +426,11 @@ class PortReaperApp(App[None]):
         panel.append(f"User: {entry.username}", style="#8B949E")
         panel.append("\n")
 
-        # Line 5: Live RAM sparkline
         panel.append("RAM      ", style="bold #8B949E")
         panel.append(f"{entry.memory_mb:6.1f} MB  ", style="bold #10B981")
         panel.append_text(_render_sparkline(ram_hist, color="#10B981"))
         panel.append("   ")
 
-        # Live CPU sparkline on same or next line
         panel.append("CPU  ", style="bold #8B949E")
         panel.append(f"{entry.cpu_percent:5.1f}%  ", style="bold #F59E0B")
         panel.append_text(_render_sparkline(cpu_hist, color="#F59E0B"))
@@ -463,13 +459,12 @@ class PortReaperApp(App[None]):
             self.query_one("#ports-table", DataTable).focus()
 
     def on_key(self, event: events.Key) -> None:
-        # While typing in the search box, only Escape returns focus to the table.
         search_input = self.query_one("#search-input", Input)
         if search_input.has_focus and event.key == "escape":
             event.stop()
             self.action_clear_or_blur_search()
 
-   # --- Reactive Watchers ---
+    # --- Reactive Watchers ---
 
     def watch_dev_only(self, _: bool) -> None:
         if self.is_mounted and self.screen_stack:
@@ -483,6 +478,7 @@ class PortReaperApp(App[None]):
         if self.is_mounted and self.screen_stack:
             drawer = self.query_one("#inspector-drawer")
             drawer.set_class(not is_open, "collapsed")
+
     # --- Actions ---
 
     def _is_search_focused(self) -> bool:
