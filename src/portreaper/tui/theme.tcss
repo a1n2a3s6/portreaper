@@ -1,0 +1,183 @@
+/* PortReaper — Industrial Matte Charcoal Terminal Theme (btop / lazygit inspired) */
+
+$bg: #0B0E14;
+$surface: #11161F;
+$surface-alt: #161C26;
+$border: #2A313C;
+$border-focus: #4B5563;
+$text: #E6EDF3;
+$muted: #8B949E;
+$amber: #F59E0B;
+$emerald: #10B981;
+$crimson: #EF4444;
+$steel: #38BDF8;
+
+Screen {
+    background: $bg;
+    color: $text;
+    layout: vertical;
+}
+
+#status-bar {
+    dock: top;
+    height: 1;
+    width: 100%;
+    background: $surface;
+    color: $text;
+    padding: 0 1;
+    content-align: left middle;
+}
+
+#search-container {
+    height: 3;
+    width: 100%;
+    background: $bg;
+    padding: 0 1;
+    display: none;
+}
+
+#search-container.visible {
+    display: block;
+}
+
+#search-input {
+    height: 3;
+    width: 100%;
+    background: $surface;
+    color: $text;
+    border: solid $border;
+    padding: 0 1;
+}
+
+#search-input:focus {
+    border: solid $amber;
+    background: $surface-alt;
+}
+
+#table-container {
+    height: 1fr;
+    width: 100%;
+    background: $bg;
+    padding: 0 1;
+}
+
+#ports-table {
+    height: 1fr;
+    width: 100%;
+    background: $bg;
+    color: $text;
+    border: solid $border;
+    scrollbar-background: $bg;
+    scrollbar-color: $border;
+    scrollbar-color-hover: $muted;
+    scrollbar-color-active: $amber;
+}
+
+#ports-table:focus {
+    border: solid $border-focus;
+}
+
+#ports-table > .datatable--header {
+    background: $surface;
+    color: $muted;
+    text-style: bold;
+}
+
+#ports-table > .datatable--cursor {
+    background: $surface-alt;
+    color: $text;
+    text-style: bold;
+}
+
+#ports-table > .datatable--hover {
+    background: #131922;
+}
+
+#inspector-drawer {
+    height: 9;
+    width: 100%;
+    background: $surface;
+    color: $text;
+    border: solid $border;
+    margin: 0 1;
+    padding: 0 1;
+}
+
+#inspector-drawer.collapsed {
+    display: none;
+}
+
+#inspector-content {
+    height: 100%;
+    width: 100%;
+    background: $surface;
+    color: $text;
+}
+
+#keybar {
+    dock: bottom;
+    height: 1;
+    width: 100%;
+    background: $surface;
+    color: $muted;
+    padding: 0 1;
+    content-align: left middle;
+}
+
+/* Fast y/n Kill Confirmation Modal */
+KillConfirmModal {
+    align: center middle;
+    background: rgba(11, 14, 20, 0.80);
+}
+
+#kill-modal-box {
+    width: 64;
+    height: auto;
+    background: $surface;
+    border: heavy $crimson;
+    padding: 1 2;
+}
+
+#kill-modal-box.graceful {
+    border: heavy $amber;
+}
+
+#kill-modal-title {
+    text-style: bold;
+    color: $crimson;
+    margin-bottom: 1;
+}
+
+#kill-modal-box.graceful #kill-modal-title {
+    color: $amber;
+}
+
+#kill-modal-body {
+    color: $text;
+    margin-bottom: 1;
+}
+
+#kill-modal-hint {
+    color: $muted;
+    text-style: bold;
+    content-align: center middle;
+    height: 1;
+}
+
+Toast {
+    background: $surface-alt;
+    color: $text;
+    border: solid $border;
+}
+
+Toast.-information {
+    border: solid $emerald;
+}
+
+Toast.-warning {
+    border: solid $amber;
+}
+
+Toast.-error {
+    border: solid $crimson;
+}
