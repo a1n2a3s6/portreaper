@@ -251,7 +251,9 @@ class PortReaperApp(App[None]):
 
         self._apply_filter_and_render()
 
-    def _apply_filter_and_render(self) -> None:
+   def _apply_filter_and_render(self) -> None:
+        if not self.is_mounted:
+            return
         filtered = self._all_entries
         if self.dev_only:
             filtered = [e for e in filtered if e.is_dev]
@@ -262,7 +264,6 @@ class PortReaperApp(App[None]):
                 for e in filtered
                 if _fuzzy_match(q, f"{e.port} {e.protocol} {e.bind_addr} {e.dev_tag} {e.name} {e.cmdline}")
             ]
-
         self._visible_entries = filtered
         self._entry_by_key = {e.row_key: e for e in filtered}
 
@@ -468,21 +469,20 @@ class PortReaperApp(App[None]):
             event.stop()
             self.action_clear_or_blur_search()
 
-    # --- Reactive Watchers ---
+   # --- Reactive Watchers ---
 
     def watch_dev_only(self, _: bool) -> None:
-        if self.is_mounted:
+        if self.is_mounted and self.screen_stack:
             self._apply_filter_and_render()
 
     def watch_paused(self, _: bool) -> None:
-        if self.is_mounted:
+        if self.is_mounted and self.screen_stack:
             self._render_status_bar()
 
     def watch_inspector_open(self, is_open: bool) -> None:
-        if self.is_mounted:
+        if self.is_mounted and self.screen_stack:
             drawer = self.query_one("#inspector-drawer")
             drawer.set_class(not is_open, "collapsed")
-
     # --- Actions ---
 
     def _is_search_focused(self) -> bool:
