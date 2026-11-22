@@ -45,6 +45,10 @@
   </p>
 </div>
 
+## 🖥️ Terminal UI Preview
+
+<img src="./preview.png" width="100%" alt="PortReaper Live TUI" />
+
 ---
 
 > [!IMPORTANT]
